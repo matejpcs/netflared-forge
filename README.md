@@ -1,6 +1,6 @@
-# Netflared NeoForge
+# Netflared Forge
 
-Netflared is a client-side Cloudflare Access tunnel manager for Minecraft with NeoForge.
+Netflared is a client-side Cloudflare Access tunnel manager for Minecraft with Forge.
 
 This repository maintains **one branch per Minecraft 1.21.x release** so each version can be ported and built independently.
 
@@ -19,18 +19,18 @@ This repository maintains **one branch per Minecraft 1.21.x release** so each ve
 - 1.21.10
 - 1.21.11
 
-Each branch targets its matching Minecraft/NeoForge API. A branch is not considered binary-compatible with another version unless its own metadata and build have been verified.
+Each branch targets its matching Minecraft/Forge API. A branch is not considered binary-compatible with another version unless its own metadata and build have been verified.
 
 ## Releases
 
-GitHub Actions builds all version branches together and publishes the resulting JARs to the combined **Netflared NeoForge 1.21.x** release.
+GitHub Actions builds all version branches together and publishes the resulting JARs to the combined **Netflared Forge 1.21.x** release.
 
 Artifacts are named:
 
-`netflared-neoforge-1.21.jar`
-`netflared-neoforge-1.21.1.jar`
+`netflared-forge-1.21.jar`
+`netflared-forge-1.21.1.jar`
 `...`
-`netflared-neoforge-1.21.11.jar`
+`netflared-forge-1.21.11.jar`
 
 Sources JARs are excluded from the combined release.
 
@@ -46,9 +46,9 @@ Sources JARs are excluded from the combined release.
 
 ## Requirements
 
-Each branch uses Java 21 and the NeoForge release configured in that branch's `gradle.properties`.
+Each branch uses Java 21 and the Forge release configured in that branch's `gradle.properties`.
 
-For local development, install the matching NeoForge development environment and Java 21.
+For local development, install the matching Forge development environment and Java 21.
 
 ## Build
 
@@ -68,7 +68,7 @@ gradle runClient
 
 ## Usage
 
-1. Install the matching NeoForge version for the branch you are using.
+1. Install the matching Forge version for the branch you are using.
 2. Put the Netflared JAR in the Minecraft `mods` directory.
 3. Open the Netflared UI from the title or multiplayer screen, or press F9.
 4. Add a tunnel profile with your Cloudflare Access hostname and local Minecraft port.
@@ -92,7 +92,7 @@ Cloudflared binaries and tunnel PID files are stored inside the same Netflared c
 
 ## Versioning strategy
 
-Minecraft 1.21.x contains multiple API and NeoForge changes. The project therefore keeps version-specific branches instead of pretending that all 1.21.x releases can use one binary.
+Minecraft 1.21.x contains multiple API and Forge changes. The project therefore keeps version-specific branches instead of pretending that all 1.21.x releases can use one binary.
 
 When a source change is made, the relevant version branches can be ported independently. The release workflow then builds the complete version matrix into one release.
 
