@@ -1,0 +1,125 @@
+name: Build Forge
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - version: "1.21"
+            supported: true
+          - version: "1.21.1"
+            supported: true
+          - version: "1.21.2"
+            supported: false
+          - version: "1.21.3"
+            supported: true
+          - version: "1.21.4"
+            supported: true
+          - version: "1.21.5"
+            supported: true
+          - version: "1.21.6"
+            supported: true
+          - version: "1.21.7"
+            supported: true
+          - version: "1.21.8"
+            supported: true
+          - version: "1.21.9"
+            supported: true
+          - version: "1.21.10"
+            supported: true
+          - version: "1.21.11"
+            supported: true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Skip unsupported Forge version
+        if: matrix.supported != true
+        run: echo "Forge does not publish a 1.21.2 artifact; keeping the branch but skipping the build."
+
+      - name: Checkout Minecraft ${{ matrix.version }}
+        if: matrix.supported == true
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.version }}
+          path: source
+
+      - name: Set up Java 21
+        if: matrix.supported == true
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle 8.14.4
+        if: matrix.supported == true
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: "8.14.4"
+          cache-disabled: true
+
+      - name: Build
+        if: matrix.supported == true
+        working-directory: source
+        run: gradle clean build --no-daemon --no-parallel --no-configuration-cache --refresh-dependencies -Dorg.gradle.caching=false
+
+      - name: Prepare release artifact
+        if: matrix.supported == true
+        shell: bash
+        run: |
+          mkdir -p release
+          jar=$(find source/build/libs -maxdepth 1 -type f -name '*.jar' ! -name '*-sources.jar' ! -name '*-javadoc.jar' -print -quit)
+          test -n "$jar"
+          cp "$jar" "release/netflared-forge-${{ matrix.version }}.jar"
+
+      - name: Upload build artifact
+        if: matrix.supported == true
+        uses: actions/upload-artifact@v4
+        with:
+          name: netflared-forge-${{ matrix.version }}
+          path: release/netflared-forge-${{ matrix.version }}.jar
+          if-no-files-found: error
+          retention-days: 7
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all version artifacts
+        uses: actions/download-artifact@v5
+        with:
+          path: release
+
+      - name: Flatten release files
+        shell: bash
+        run: |
+          mkdir -p release-files
+          find release -type f -name '*.jar' -exec cp {} release-files/ ;
+          test "$(find release-files -type f -name '*.jar' | wc -l)" -eq 11
+
+      - name: Create or update combined release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          tag='forge-1.21.x'
+          title='Netflared Forge 1.21.x'
+          notes='## Minecraft / Forge branches
+
+          Builds are produced from the dedicated Forge branches 1.21 through 1.21.11.
+          Forge does not publish a 1.21.2 artifact, so that branch is retained but not included in the release.
+          Sources JARs are intentionally excluded.'
+
+          if gh release view "$tag" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            gh release edit "$tag" --repo "${{ github.repository }}" --title "$title" --notes "$notes"
+            gh release upload "$tag" --repo "${{ github.repository }}" release-files/*.jar --clobber
+          else
+            gh release create "$tag" --repo "${{ github.repository }}" --target main --title "$title" --notes "$notes" release-files/*.jar
+          fi
