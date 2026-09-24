@@ -19,7 +19,7 @@ This repository maintains **one branch per Minecraft 1.21.x release** so each ve
 - 1.21.10
 - 1.21.11
 
-Each branch targets its matching Minecraft/Forge API. A branch is not considered binary-compatible with another version unless its own metadata and build have been verified.
+Each branch targets its matching Minecraft/Forge API. Forge does not publish a 1.21.2 artifact, so that branch is retained for source continuity but is not built or released. A branch is not considered binary-compatible with another version unless its own metadata and build have been verified.
 
 ## Releases
 
