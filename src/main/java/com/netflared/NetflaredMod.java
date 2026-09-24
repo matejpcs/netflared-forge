@@ -10,15 +10,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.loading.FMLPaths;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
-import net.neoforged.neoforge.client.event.ScreenEvent;
-import net.neoforged.neoforge.common.NeoForge;
+import net.minecraftforge.bus.api.IEventBus;
+import net.minecraftforge.bus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModContainer;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.loading.FMLPaths;
+import net.minecraftforge.neoforge.client.event.ClientTickEvent;
+import net.minecraftforge.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.neoforge.client.event.ScreenEvent;
+import net.minecraftforge.neoforge.common.NeoForge;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +84,7 @@ public class NetflaredMod {
     public NetflaredMod(IEventBus modBus,ModContainer container){
         INSTANCE=this;Path dir=FMLPaths.CONFIGDIR.get().resolve(MOD_ID);config=NetflaredConfig.load(dir);tunnelManager=new TunnelManager(dir);tunnelManager.killOrphanedTunnels();Translations.refresh();
         Runtime.getRuntime().addShutdownHook(new Thread(()->{try{if(tunnelManager!=null)tunnelManager.forceStopAll();}catch(Throwable ignored){}}, "netflared-shutdown"));
-        modBus.addListener(NetflaredMod::registerKeyMappings);NeoForge.EVENT_BUS.register(NetflaredMod.class);
+        modBus.addListener(NetflaredMod::registerKeyMappings);MinecraftForge.EVENT_BUS.register(NetflaredMod.class);
     }
     private static final KeyMapping.Category NETFLARED_KEY_CATEGORY = KeyMapping.Category.register(ResourceLocation.fromNamespaceAndPath(MOD_ID, "controls"));
     private static void registerKeyMappings(RegisterKeyMappingsEvent e){e.registerCategory(NETFLARED_KEY_CATEGORY);openTunnelKey=new KeyMapping("key.netflared.open_tunnel_ui",InputConstants.Type.KEYSYM,GLFW.GLFW_KEY_F9,NETFLARED_KEY_CATEGORY);e.register(openTunnelKey);}
